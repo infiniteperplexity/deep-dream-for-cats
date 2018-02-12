@@ -19,3 +19,7 @@ model.compile(optimizer="rmsprop", loss="categorical_crossentropy")
 from keras.optimizers import SGD
 
 model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss="categorical_crossentropy")
+
+#so the next step confuses me...
+# http://www.robots.ox.ac.uk/~vgg/data/pets/
+# URL for CIFAR 100: https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a
