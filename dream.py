@@ -29,10 +29,41 @@ settings = {
         'mixed2': 0.2,
         'mixed3': 0.5,
         'mixed4': 2.,
-        'mixed5': 1.5,
+        'mixed5': 5.,
     },
 }
 
+settings = {
+    'features': {
+        'mixed5': 1.,
+    },
+}
+
+settings = {
+    'features': {
+        'mixed2': 1.,
+        'mixed3': 1.,
+        'mixed4': 1.,
+        'mixed5': 1.,
+    },
+}
+
+pooling = [layer for layer in test if "pooling" in layer]
+conv2d = [layer for layer in test if "conv2d" in layer]
+
+# ['mixed0',
+#  'mixed1',
+#  'mixed2',
+#  'mixed3',
+#  'mixed4',
+#  'mixed5',
+#  'mixed6',
+#  'mixed7',
+#  'mixed8',
+#  'mixed9_0',
+#  'mixed9',
+#  'mixed9_1',
+#  'mixed10']
 
 def preprocess_image(image_path):
     # Util function to open, resize and format pictures
@@ -67,6 +98,11 @@ print('Model loaded.')
 
 # Get the symbolic outputs of each "key" layer (we gave them unique names).
 layer_dict = dict([(layer.name, layer) for layer in model.layers])
+
+
+
+###If you change the settings, this is where you have to go back to...
+
 
 # Define the loss.
 loss = K.variable(0.)
@@ -149,14 +185,21 @@ and compare the result to the (resized) original image.
 
 # Playing with these hyperparameters will also allow you to achieve new effects
 step = 0.01  # Gradient ascent step size
-num_octave = 3  # Number of scales at which to run gradient ascent
+num_octave = 4  # Number of scales at which to run gradient ascent
 octave_scale = 1.4  # Size ratio between scales
-iterations = 20  # Number of ascent steps per scale
+iterations = 250  # Number of ascent steps per scale
 max_loss = 10.
 
 
 #I think this is where I need to replace the path and stuff, that would be the args
 
+
+directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
+file_name = 'Abyssinian_1.jpg'
+# directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
+# file_name = 'noise.png'
+result_prefix = 'C:/Users/M543015/Desktop/GitHub/deeplearning/testing'
+base_image_path = directory_path+file_name
 
 
 img = preprocess_image(base_image_path)
