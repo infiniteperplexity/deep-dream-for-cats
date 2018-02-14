@@ -1,5 +1,7 @@
 from keras.layers.core import Layer
 import theano.tensor as T
+from keras import backend as K
+#K.image_dim_ordering("th")
 
 class LRN(Layer):
 
@@ -45,4 +47,11 @@ class PoolHelper(Layer):
         config = {}
         base_config = super(PoolHelper, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
-        
+
+
+
+from keras.models import model_from_json
+
+gnet = 'C:/Users/M543015/Desktop/GitHub/deeplearning/googlenet/'
+model = model_from_json(open(gnet+'googlenet_architecture.json').read(), custom_objects={"PoolHelper": PoolHelper, "LRN": LRN})
+model.load_weights(gnet+'googlenet_weights.h5')

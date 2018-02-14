@@ -17,6 +17,7 @@ import numpy as np
 import scipy
 
 from keras.applications import inception_v3
+from keras.applications import inception_resnet_v2
 from keras import backend as K
 
 # These are the names of the layers
@@ -114,8 +115,8 @@ layer_dict = dict([(layer.name, layer) for layer in model.layers])
 
 
 ###If you change the settings, this is where you have to go back to...
-#for mlayer in mixed:
-for mlayer in oneofeach:
+for mlayer in mixed:
+#for mlayer in oneofeach:
     settings = {
         'features': {
             mlayer: 1.,
@@ -205,18 +206,18 @@ for mlayer in oneofeach:
     step = 0.01  # Gradient ascent step size
     num_octave = 3  # Number of scales at which to run gradient ascent
     octave_scale = 1.4  # Size ratio between scales
-    iterations = 20  # Number of ascent steps per scale
+    iterations = 100  # Number of ascent steps per scale
     max_loss = 10.
 
 
     #I think this is where I need to replace the path and stuff, that would be the args
 
 
-    directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
-    file_name = 'Abyssinian_1.jpg'
-    #directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
-    #file_name = 'noise.png'
-    result_prefix = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'+mlayer
+    #directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
+    #file_name = 'Abyssinian_1.jpg'
+    directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
+    file_name = 'noise.png'
+    result_prefix = 'C:/Users/M543015/Desktop/GitHub/deeplearning/noise_'+mlayer
     base_image_path = directory_path+file_name
 
 
