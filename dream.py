@@ -219,11 +219,6 @@ save_img(img, fname=result_prefix + '.png')
 
 import os
 directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
-
-
-#better approach would be to pull in list of images, then figure it out myself
-#all capital letters are cats
-
 cats = [name for name in os.listdir(directory_path) if "jpg" in name and name[0].isupper()]
 breeds = []
 pairs = []
@@ -236,26 +231,16 @@ for cat in cats:
 
 images, labels = zip(*[(preprocess_image(directory_path+pair[0]),pair[1]) for pair in pairs])
 
+# for some reason this is really stubborn about working in a function
+resized = []
+for img in images:
+    resized.append(scipy.ndimage.zoom(img, (1, float(400)/img.shape[1], float(400)/img.shape[2], 1), order=1))
 
+X_train = np.vstack(resized)
 
-"""
+y_train = np.vstack(labels)
 
-(X_train, y_train), (X_test, y_test) = cifar10.load_data()
-for layer in mo
-
-import pickle
-test = pickle.load()
-
-
-
-test = np.asarray(inimages, dtype=float)
-
-b = np.asarray(a, dtype=float)
-#to get the same shape do.
-b = b.reshape(-1, len(b)) 
-#to just get one dimmension do. 
-b = np.asarray(a, dtype=float).reshape(len(a))
-
-
-
-"""
+from keras.optimizers import SGD
+model = inception_v3.InceptionV3(weights=None,include_top=False,input_shape=(400, 400, 3))
+model.compile(optimizer=SGD(lr=0.0001, momentum=0.9),loss="categorical_crossentropy")
+model.fit(x=X_train,y=y_train)
