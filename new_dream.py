@@ -9,15 +9,25 @@ e.g.:
 python deep_dream.py img/mypic.jpg results/dream
 ```
 '''
-
-#removing all the command-line stuff
+from __future__ import print_function
 
 from keras.preprocessing.image import load_img, img_to_array
 import numpy as np
 import scipy
+import argparse
 
 from keras.applications import inception_v3
 from keras import backend as K
+
+parser = argparse.ArgumentParser(description='Deep Dreams with Keras.')
+parser.add_argument('base_image_path', metavar='base', type=str,
+                    help='Path to the image to transform.')
+parser.add_argument('result_prefix', metavar='res_prefix', type=str,
+                    help='Prefix for the saved results.')
+
+args = parser.parse_args()
+base_image_path = args.base_image_path
+result_prefix = args.result_prefix
 
 # These are the names of the layers
 # for which we try to maximize activation,
@@ -26,26 +36,13 @@ from keras import backend as K
 # You can tweak these setting to obtain new visual effects.
 settings = {
     'features': {
-        'mixed2': 0.5,
-        'mixed3': 1.,
-        'mixed4': 1.,
-        'mixed5': 1.,
-        'mixed6': 0.5,
+        'mixed2': 0.2,
+        'mixed3': 0.5,
+        'mixed4': 2.,
+        'mixed5': 1.5,
     },
 }
-# ['mixed0',
-#  'mixed1',
-#  'mixed2',
-#  'mixed3',
-#  'mixed4',
-#  'mixed5',
-#  'mixed6',
-#  'mixed7',
-#  'mixed8',
-#  'mixed9_0',
-#  'mixed9',
-#  'mixed9_1',
-#  'mixed10']
+
 
 def preprocess_image(image_path):
     # Util function to open, resize and format pictures
@@ -74,17 +71,13 @@ K.set_learning_phase(0)
 
 # Build the InceptionV3 network with our placeholder.
 # The model will be loaded with pre-trained ImageNet weights.
-model = inception_v3.InceptionV3(weights='imagenet',include_top=False)
+model = inception_v3.InceptionV3(weights='imagenet',
+                                 include_top=False)
 dream = model.input
 print('Model loaded.')
 
 # Get the symbolic outputs of each "key" layer (we gave them unique names).
 layer_dict = dict([(layer.name, layer) for layer in model.layers])
-
-
-
-###If you change the settings, this is where you have to go back to...
-
 
 # Define the loss.
 loss = K.variable(0.)
@@ -103,8 +96,6 @@ for layer_name in settings['features']:
 # Compute the gradients of the dream wrt the loss.
 grads = K.gradients(loss, dream)[0]
 # Normalize gradients.
-#grads /= K.maximum(K.mean(K.abs(grads)), 1e-7)
-#newer version of code
 grads /= K.maximum(K.mean(K.abs(grads)), K.epsilon())
 
 # Set up function to retrieve the value
@@ -169,22 +160,10 @@ and compare the result to the (resized) original image.
 
 # Playing with these hyperparameters will also allow you to achieve new effects
 step = 0.01  # Gradient ascent step size
-num_octave = 4  # Number of scales at which to run gradient ascent
+num_octave = 3  # Number of scales at which to run gradient ascent
 octave_scale = 1.4  # Size ratio between scales
-iterations = 100  # Number of ascent steps per scale
+iterations = 20  # Number of ascent steps per scale
 max_loss = 10.
-
-
-#I think this is where I need to replace the path and stuff, that would be the args
-
-
-directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
-file_name = 'Abyssinian_1.jpg'
-# directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
-# file_name = 'noise.png'
-result_prefix = 'C:/Users/M543015/Desktop/GitHub/deeplearning/testing'
-base_image_path = directory_path+file_name
-
 
 img = preprocess_image(base_image_path)
 if K.image_data_format() == 'channels_first':
@@ -214,48 +193,3 @@ for shape in successive_shapes:
     shrunk_original_img = resize_img(original_img, shape)
 
 save_img(img, fname=result_prefix + '.png')
-
-
-
-import os
-directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
-
-
-#better approach would be to pull in list of images, then figure it out myself
-#all capital letters are cats
-
-cats = [name for name in os.listdir(directory_path) if "jpg" in name and name[0].isupper()]
-breeds = []
-pairs = []
-for cat in cats:
-    breed = "_".join(cat.split("_")[:-1])
-    if breed not in breeds:
-        breeds.append(breed)
-
-    pairs.append((cat,len(breeds)-1))
-
-images, labels = zip(*[(preprocess_image(directory_path+pair[0]),pair[1]) for pair in pairs])
-
-
-
-"""
-
-(X_train, y_train), (X_test, y_test) = cifar10.load_data()
-for layer in mo
-
-import pickle
-test = pickle.load()
-
-
-
-test = np.asarray(inimages, dtype=float)
-
-b = np.asarray(a, dtype=float)
-#to get the same shape do.
-b = b.reshape(-1, len(b)) 
-#to just get one dimmension do. 
-b = np.asarray(a, dtype=float).reshape(len(a))
-
-
-
-"""
