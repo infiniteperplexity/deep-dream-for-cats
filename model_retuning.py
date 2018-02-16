@@ -4,6 +4,9 @@ import numpy as np
 import scipy
 from keras.applications import inception_v3
 from keras.preprocessing.image import load_img, img_to_array
+from keras.models import Model
+from keras.layers import Dense, GlobalAveragePooling2D
+from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import SGD
 from keras.utils.np_utils import to_categorical
 
@@ -48,12 +51,12 @@ X_train = np.vstack(resized)
 y_train = to_categorical(np.vstack(labels))
 
 # train only the new layers, so as to avoid disturbing the pretrained weights
-base_model = InceptionV3(weights="imagenet", include_top=False)
-output_layer = base_model.ouput
+base_model = inception_v3.InceptionV3(weights="imagenet", include_top=False)
+output_layer = base_model.output
 final_pooling = GlobalAveragePooling2D()(output_layer)
 final_dense = Dense(DENSE, activation="relu")(final_pooling)
-predictions = Dense(CLASSES,, activation="softmax")(final_dense)
-model = (input=base_model.input, output=predictions)
+predictions = Dense(CLASSES, activation="softmax")(final_dense)
+model = Model(input=base_model.input, output=predictions)
 for layer in base_model.layers:
 	layer.trainable = False
 
@@ -75,8 +78,7 @@ transfer_history = model.fit_generator(
 	myImageGenerator.flow(X_train, y_train, batch_size=BATCHSIZE),
 	samples_per_epoch=X_train.shape[0],
 	epochs=EPOCHS,
-	verbose=VERBOSE,
-	validation_split=SPLIT
+	verbose=VERBOSE
 )
 
 # retrain chosen number of layers
