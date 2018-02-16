@@ -28,6 +28,7 @@ def preprocess_image(image_path):
     return img
 
 input_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
+output_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
 ### Load cat images only and build list of breeds
 cats = [name for name in os.listdir(input_path) if "jpg" in name and name[0].isupper()]
 breeds = []
@@ -81,6 +82,12 @@ transfer_history = model.fit_generator(
 	verbose=VERBOSE
 )
 
+with open(output_path+'transfer_model.json', 'w') as outfile:
+    outfile.write(model.to_json())
+
+model.save(output_path+'transfer_model.h5')
+
+
 # retrain chosen number of layers
 for layer in model.layers[:FROZEN]:
 	layer.trainable = False
@@ -95,7 +102,15 @@ tuning_history = model.fit_generator(
 	myImageGenerator.flow(X_train, y_train, batch_size=BATCHSIZE),
 	samples_per_epoch=X_train.shape[0],
 	epochs=EPOCHS,
-	verbose=VERBOSE,
-	validation_split=SPLIT
+	verbose=VERBOSE
 )
 
+with open(output_path+'retuned_model.json', 'w') as outfile:
+    outfile.write(model.to_json())
+
+model.save(output_path+'retuned_model.h5')
+
+
+
+
+git filter-branch --prune-empty --index-filter 'git rm --cached --ignore-unmatch transfer_model.h5' --all
