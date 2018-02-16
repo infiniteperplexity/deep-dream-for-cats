@@ -241,6 +241,6 @@ X_train = np.vstack(resized)
 y_train = np.vstack(labels)
 
 from keras.optimizers import SGD
-model = inception_v3.InceptionV3(weights=None,include_top=False,input_shape=(400, 400, 3))
+model = inception_v3.InceptionV3(weights=None,include_top=False,input_shape=(299, 299, 3))
 model.compile(optimizer=SGD(lr=0.0001, momentum=0.9),loss="categorical_crossentropy")
 model.fit(x=X_train,y=y_train)
