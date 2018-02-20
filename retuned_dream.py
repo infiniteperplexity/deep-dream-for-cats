@@ -1,29 +1,29 @@
-'''Deep Dreaming in Keras.
-
-Run the script with:
-```
-python deep_dream.py path_to_your_base_image.jpg prefix_for_results
-```
-e.g.:
-```
-python deep_dream.py img/mypic.jpg results/dream
-```
-'''
-
-#removing all the command-line stuff
-
 from keras.preprocessing.image import load_img, img_to_array
+from keras.models import model_from_json
+from keras.applications import inception_v3
 import numpy as np
 import scipy
 
-from keras.applications import inception_v3
 from keras import backend as K
 
-# These are the names of the layers
-# for which we try to maximize activation,
-# as well as their weight in the final loss
-# we try to maximize.
-# You can tweak these setting to obtain new visual effects.
+input_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
+output_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
+
+# load json and create model
+with open(output_path + 'retuned_model.json', 'r') as f:
+    json = f.read()
+    model = model_from_json(json)
+
+model.load_weights(output_path + 'retuned_model.h5')
+
+
+model.layers.pop()
+model.layers.pop()
+model.layers.pop()
+
+model = inception_v3.InceptionV3(weights='imagenet',include_top=False)
+dream = model.input
+
 settings = {
     'features': {
         'mixed2': 0.5,
@@ -33,19 +33,6 @@ settings = {
         'mixed6': 0.5,
     },
 }
-# ['mixed0',
-#  'mixed1',
-#  'mixed2',
-#  'mixed3',
-#  'mixed4',
-#  'mixed5',
-#  'mixed6',
-#  'mixed7',
-#  'mixed8',
-#  'mixed9_0',
-#  'mixed9',
-#  'mixed9_1',
-#  'mixed10']
 
 def preprocess_image(image_path):
     # Util function to open, resize and format pictures
@@ -55,7 +42,6 @@ def preprocess_image(image_path):
     img = np.expand_dims(img, axis=0)
     img = inception_v3.preprocess_input(img)
     return img
-
 
 def deprocess_image(x):
     # Util function to convert a tensor into a valid image.
@@ -72,18 +58,10 @@ def deprocess_image(x):
 
 K.set_learning_phase(0)
 
-# Build the InceptionV3 network with our placeholder.
-# The model will be loaded with pre-trained ImageNet weights.
-model = inception_v3.InceptionV3(weights='imagenet',include_top=False)
-dream = model.input
-
-
 print('Model loaded.')
 
 # Get the symbolic outputs of each "key" layer (we gave them unique names).
 layer_dict = dict([(layer.name, layer) for layer in model.layers])
-
-
 
 ###If you change the settings, this is where you have to go back to...
 
@@ -112,6 +90,7 @@ grads /= K.maximum(K.mean(K.abs(grads)), K.epsilon())
 # Set up function to retrieve the value
 # of the loss and gradients given an input image.
 outputs = [loss, grads]
+
 fetch_loss_and_grads = K.function([dream], outputs)
 
 
@@ -173,7 +152,7 @@ and compare the result to the (resized) original image.
 step = 0.01  # Gradient ascent step size
 num_octave = 4  # Number of scales at which to run gradient ascent
 octave_scale = 1.4  # Size ratio between scales
-iterations = 100  # Number of ascent steps per scale
+iterations = 20  # Number of ascent steps per scale
 max_loss = 10.
 
 
@@ -216,33 +195,3 @@ for shape in successive_shapes:
     shrunk_original_img = resize_img(original_img, shape)
 
 save_img(img, fname=result_prefix + '.png')
-
-
-
-import os
-directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
-cats = [name for name in os.listdir(directory_path) if "jpg" in name and name[0].isupper()]
-breeds = []
-pairs = []
-for cat in cats:
-    breed = "_".join(cat.split("_")[:-1])
-    if breed not in breeds:
-        breeds.append(breed)
-
-    pairs.append((cat,len(breeds)-1))
-
-images, labels = zip(*[(preprocess_image(directory_path+pair[0]),pair[1]) for pair in pairs])
-
-# for some reason this is really stubborn about working in a function
-resized = []
-for img in images:
-    resized.append(scipy.ndimage.zoom(img, (1, float(400)/img.shape[1], float(400)/img.shape[2], 1), order=1))
-
-X_train = np.vstack(resized)
-
-y_train = np.vstack(labels)
-
-from keras.optimizers import SGD
-model = inception_v3.InceptionV3(weights=None,include_top=False,input_shape=(299, 299, 3))
-model.compile(optimizer=SGD(lr=0.0001, momentum=0.9),loss="categorical_crossentropy")
-model.fit(x=X_train,y=y_train)

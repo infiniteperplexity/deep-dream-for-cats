@@ -109,8 +109,3 @@ with open(output_path+'retuned_model.json', 'w') as outfile:
     outfile.write(model.to_json())
 
 model.save(output_path+'retuned_model.h5')
-
-
-
-
-git filter-branch --prune-empty --index-filter 'git rm --cached --ignore-unmatch transfer_model.h5' --all
