@@ -9,15 +9,18 @@ from keras.layers import Dense, GlobalAveragePooling2D
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import SGD
 from keras.utils.np_utils import to_categorical
+from keras.datasets import cifar100
 
 WIDTH, HEIGHT = 299, 299 # image width and height from ImageNet
 DENSE = 1024 # I think this is just a feature of Inception_V3
-EPOCHS = 6 # isn't this quite small?
-CLASSES = 12 # twelve breeds of cat
+EPOCHS = 5 # isn't this quite small?
+CIFAR = 100
+CLASSES = CIFAR + 12 # twelve breeds of cat + 100 CIFAR classes
 FROZEN = 87 # number of layers to freeze, now set immediately after mixed2
 BATCHSIZE = 32 # is this arbitrary?
 SPLIT = 0.2
 VERBOSE = 2
+SAMPLES = 5000
 
 # borrowed from the Keras Deep Dream implementation
 def preprocess_image(image_path):
@@ -38,9 +41,17 @@ for cat in cats:
     if breed not in breeds:
         breeds.append(breed)
 
-    pairs.append((cat,len(breeds)-1))
+    pairs.append((cat,len(breeds)-1+CIFAR))
 
 images, labels = zip(*[(preprocess_image(input_path+pair[0]),pair[1]) for pair in pairs])
+images = list(images)
+labels = list(labels)
+### concatenate with CIFAR data
+(cimages, clabels), (_,_) = cifar100.load_data()
+idx = np.random.choice(cimages.shape[0], SAMPLES, replace=False)
+samples = [img.reshape(1,32,32,3) for img in cimages[idx]]
+images.extend(samples)
+labels.extend([label for label in clabels[idx]])
 
 ### This was weirdly finicky about working as a function so I'll do it as a loop
 resized = []
@@ -75,17 +86,17 @@ myImageGenerator = ImageDataGenerator(
 )
 
 # fit model
-# transfer_history = model.fit_generator(
-# 	myImageGenerator.flow(X_train, y_train, batch_size=BATCHSIZE),
-# 	samples_per_epoch=X_train.shape[0],
-# 	epochs=EPOCHS,
-# 	verbose=VERBOSE
-# )
+transfer_history = model.fit_generator(
+	myImageGenerator.flow(X_train, y_train, batch_size=BATCHSIZE),
+	samples_per_epoch=X_train.shape[0],
+	epochs=EPOCHS,
+	verbose=VERBOSE
+)
 
-# with open(output_path+'transfer_model.json', 'w') as outfile:
-#     outfile.write(model.to_json())
+with open(output_path+'transfer_model.json', 'w') as outfile:
+    outfile.write(model.to_json())
 
-# model.save(output_path+'transfer_model.h5')
+model.save(output_path+'transfer_model.h5')
 
 
 with open(output_path + 'transfer_model.json', 'r') as f:

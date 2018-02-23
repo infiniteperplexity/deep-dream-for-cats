@@ -1,10 +1,12 @@
 from keras.preprocessing.image import load_img, img_to_array
 from keras.models import model_from_json
-from keras.applications import inception_v3
 import numpy as np
 import scipy
-
 from keras import backend as K
+
+from keras.applications.inception_v3 import preprocess_input, InceptionV3
+
+from keras.applications.inception_resnet_v2 import preprocess_input, InceptionResNetV2
 
 input_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
 output_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
@@ -21,18 +23,30 @@ model.layers.pop()
 model.layers.pop()
 model.layers.pop()
 
-model = inception_v3.InceptionV3(weights='imagenet',include_top=False)
+model = InceptionV3(weights='imagenet',include_top=False)
+model = InceptionResNetV2(weights='imagenet',include_top=False)
 dream = model.input
+
+names = [layer.name for layer in model.layers]
 
 settings = {
     'features': {
-        'mixed2': 0.5,
-        'mixed3': 1.,
-        'mixed4': 1.,
-        'mixed5': 1.,
-        'mixed6': 0.5,
+        'mixed2': 0.2,
+        'mixed3': 0.5,
+        'mixed4': 2.,
+        'mixed5': 1.5,
     },
 }
+
+settings = {
+    'features': {
+        'block17_5_mixed': 0.2,
+        'block17_8_mixed': 0.5,
+        'block17_10_mixed': 2.,
+        'block17_12_mixed': 1.5,
+    },
+}
+
 
 def preprocess_image(image_path):
     # Util function to open, resize and format pictures
@@ -40,7 +54,7 @@ def preprocess_image(image_path):
     img = load_img(image_path)
     img = img_to_array(img)
     img = np.expand_dims(img, axis=0)
-    img = inception_v3.preprocess_input(img)
+    img = preprocess_input(img)
     return img
 
 def deprocess_image(x):
@@ -75,6 +89,8 @@ for layer_name in settings['features']:
     x = layer_dict[layer_name].output
     # We avoid border artifacts by only involving non-border pixels in the loss.
     scaling = K.prod(K.cast(K.shape(x), 'float32'))
+
+    # This appears to be the L2 calculation
     if K.image_data_format() == 'channels_first':
         loss += coeff * K.sum(K.square(x[:, :, 2: -2, 2: -2])) / scaling
     else:
@@ -160,7 +176,10 @@ max_loss = 10.
 
 
 directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
+directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
 file_name = 'Abyssinian_1.jpg'
+file_name = 'Bengal_49.jpg'
+file_name = 'starry.jpg'
 # directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
 # file_name = 'noise.png'
 result_prefix = 'C:/Users/M543015/Desktop/GitHub/deeplearning/testing'
