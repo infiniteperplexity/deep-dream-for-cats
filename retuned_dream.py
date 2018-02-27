@@ -23,8 +23,8 @@ model.layers.pop()
 model.layers.pop()
 model.layers.pop()
 
-model = InceptionV3(weights='imagenet',include_top=False)
-model = InceptionResNetV2(weights='imagenet',include_top=False)
+# model = InceptionV3(weights='imagenet',include_top=False)
+# model = InceptionResNetV2(weights='imagenet',include_top=False)
 dream = model.input
 
 names = [layer.name for layer in model.layers]
@@ -38,14 +38,6 @@ settings = {
     },
 }
 
-settings = {
-    'features': {
-        'block17_5_mixed': 0.2,
-        'block17_8_mixed': 0.5,
-        'block17_10_mixed': 2.,
-        'block17_12_mixed': 1.5,
-    },
-}
 
 
 def preprocess_image(image_path):
@@ -176,12 +168,8 @@ max_loss = 10.
 
 
 directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
-directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
 file_name = 'Abyssinian_1.jpg'
-file_name = 'Bengal_49.jpg'
-file_name = 'starry.jpg'
-# directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/'
-# file_name = 'noise.png'
+#file_name = 'Bengal_49.jpg'
 result_prefix = 'C:/Users/M543015/Desktop/GitHub/deeplearning/testing'
 base_image_path = directory_path+file_name
 
