@@ -1,3 +1,5 @@
+import os
+os.environ['KERAS_BACKEND'] = 'tensorflow'
 from keras.preprocessing.image import load_img, img_to_array
 from keras.models import model_from_json
 import numpy as np
@@ -23,7 +25,7 @@ model.layers.pop()
 model.layers.pop()
 model.layers.pop()
 
-# model = InceptionV3(weights='imagenet',include_top=False)
+model = InceptionV3(weights='imagenet',include_top=False)
 # model = InceptionResNetV2(weights='imagenet',include_top=False)
 dream = model.input
 
@@ -169,7 +171,7 @@ max_loss = 10.
 
 directory_path = 'C:/Users/M543015/Desktop/GitHub/deeplearning/images/images/'
 file_name = 'Abyssinian_1.jpg'
-#file_name = 'Bengal_49.jpg'
+file_name = 'Bengal_49.jpg'
 result_prefix = 'C:/Users/M543015/Desktop/GitHub/deeplearning/testing'
 base_image_path = directory_path+file_name
 
