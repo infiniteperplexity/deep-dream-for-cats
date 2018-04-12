@@ -1,0 +1,28 @@
+<!--Distributed under GNU Public License version 3-->
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Deep Dream For Cats</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+</head>
+<body>
+<h1>DeepDream for Cats <code>(deep-dream-for-cats)</code></h1>
+<p>An experimental project using deep convolutional networks.  It is based on Google's <a href="https://googleresearch.blogspot.ch/2015/06/inceptionism-going-deeper-into-neural.html">DeepDream</a> program and was written using the <a href="https://www.scipy.org/about.html">SciPy</a> ecosystem and <a href="https://keras.io/">Keras</a>.  The original DeepDream program is infamous for generating images of <a href="https://googleresearch.blogspot.ch/2015/06/inceptionism-going-deeper-into-neural.html">"dogslugs"</a>, because the network was trained on an dataset that has images of many different breeds of dogs.  I wondered if it might be possible to generate "catslugs" by retuning the network on different data - specifically, the cat breed images from the <a href="http://www.robots.ox.ac.uk/~vgg/data/pets/">Oxford-IIIT Pet Dataset.<a/></p>
+<p>The project is complete.  Ultimately, the output was a bit disappointing - it was noticeably less doglike than the original DeepDream images, but did not produce "catslugs".  Nevertheless, I learned a great deal about constructing and training deep neural networks.</p>
+<h4>Why didn't this work very well?</h4>
+<img src="almost_okay.png">
+<p>First and foremost, the original Keras "DeepDream" project does not generate "dogslugs" to nearly the same extent that the original Caffe-based "DeepDream" project does.  I can think of two possible reasons:</p>
+<ul>
+<li>Maybe the logic is different, and I don't know how to use Caffe.</li>
+<li>The Keras project uses Inception V3, whereas the original uses Inception V1.  I could not find a version of Inception V1 that works with the current version of Keras.</li>
+</ul>
+<p>In addition, there may have been problems with the procedures I followed:</p>
+<ul>
+<li>There are still signs of doglike features in the image, even though there were no dogs in the retuning data.  That suggests that maybe I didn't retrain enough layers or use enough iterations to get rid of the dog-centeredness of the original network.</li>
+<li>I've heard contradictory things about why DeepDream is obsessed with dogs - some people say it's because ImageNet contains a lot of dogs, but others say it's because ImageNet distinguishes many different kinds of dogs.  Because I don't know exactly how DeepDream became obsessed with dogs, I may not be doing the right things to make a network obsessed with cats.
+</li>
+<li>The different cat breeds differ mostly by color, whereas dog breeds differ by shape.  So the retuned network may not be very sensitive to the shapes of cats.
+</li>
+</ul>
+</body>
+</html>
